@@ -10,10 +10,19 @@ This repository currently includes **Step 1** foundations:
 - Seek slider with time display
 - Playback speed control
 
+It now also includes **Step 2 and Step 3**:
+- Rally tagging with keyboard shortcuts (`I` start, `O` end)
+- Segment table with delete, clear, and double-click edit
+- Background FFmpeg export worker (`QThread`) to keep UI responsive
+- Export Mode A: concatenate rallies into one output
+- Export Mode B: export each rally as `Play_###.mp4`
+
 ## Requirements
 
 - Python 3.10+
-- FFmpeg installed and available on your system `PATH`
+- FFmpeg available either:
+  - on your system `PATH`, or
+  - via Python package `imageio-ffmpeg` (included in `requirements.txt`)
 
 ## Setup
 
@@ -50,8 +59,12 @@ src/
   rallypin/
     main.py
     core/
+      models.py
+      segment_manager.py
       time_utils.py
       video_player_controller.py
+      video_processing.py
     ui/
+      export_worker.py
       main_window.py
 ```
