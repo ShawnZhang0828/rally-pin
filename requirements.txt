@@ -1,6 +1,3 @@
-PyQt6
-PyQt6-Qt6
-PyQt6-sip
-ffmpeg-python
-imageio-ffmpeg
+PyQt6>=6.6,<7
+imageio-ffmpeg>=0.5,<1
 

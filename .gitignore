@@ -31,6 +31,7 @@ MANIFEST
 #   before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+!RallyPin.spec
 
 # Installer logs
 pip-log.txt
@@ -151,6 +152,7 @@ activemq-data/
 .env
 .envrc
 .venv
+.venv-build/
 env/
 venv/
 ENV/
@@ -208,6 +210,9 @@ tempCodeRunnerFile.py
 
 # PyPI configuration file
 .pypirc
+
+# RallyPin user projects and local exports
+*.rallypin.json
 
 # Marimo
 marimo/_static/

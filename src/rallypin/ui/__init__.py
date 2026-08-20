@@ -1,2 +1,1 @@
 """UI layer for RallyPin."""
-

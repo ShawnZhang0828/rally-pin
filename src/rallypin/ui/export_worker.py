@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QObject, QThread, pyqtSignal
 
 from rallypin.core.models import VideoSegment
 from rallypin.core.video_processing import (
+    ExportCancelled,
     VideoProcessingError,
     export_segments_concatenated,
     export_segments_individually,
@@ -19,6 +20,8 @@ class ExportWorker(QThread):
 
     completed = pyqtSignal(str)
     failed = pyqtSignal(str)
+    cancelled = pyqtSignal()
+    progress_changed = pyqtSignal(int, str)
 
     def __init__(
         self,
@@ -26,7 +29,7 @@ class ExportWorker(QThread):
         segments: list[VideoSegment],
         mode: str,
         output_path: Path,
-        parent: object | None = None,
+        parent: QObject | None = None,
     ) -> None:
         """Initialize an export worker with immutable job inputs."""
         super().__init__(parent)
@@ -34,6 +37,10 @@ class ExportWorker(QThread):
         self._segments = list(segments)
         self._mode = mode
         self._output_path = output_path
+
+    def cancel(self) -> None:
+        """Request cancellation of the current FFmpeg process."""
+        self.requestInterruption()
 
     def run(self) -> None:
         """Execute export mode and emit completion/error signals."""
@@ -43,6 +50,8 @@ class ExportWorker(QThread):
                     input_video=self._input_video,
                     segments=self._segments,
                     output_file=self._output_path,
+                    progress_callback=self._report_progress,
+                    cancel_requested=self.isInterruptionRequested,
                 )
                 self.completed.emit(f"Concatenated video exported:\n{output_file}")
                 return
@@ -52,6 +61,8 @@ class ExportWorker(QThread):
                     input_video=self._input_video,
                     segments=self._segments,
                     output_dir=self._output_path,
+                    progress_callback=self._report_progress,
+                    cancel_requested=self.isInterruptionRequested,
                 )
                 self.completed.emit(
                     f"Exported {len(outputs)} clips to:\n{self._output_path}",
@@ -59,8 +70,14 @@ class ExportWorker(QThread):
                 return
 
             self.failed.emit(f"Unsupported export mode: {self._mode}")
+        except ExportCancelled:
+            self.cancelled.emit()
         except VideoProcessingError as exc:
             self.failed.emit(str(exc))
         except Exception as exc:  # noqa: BLE001
             self.failed.emit(f"Unexpected export error: {exc}")
 
+    def _report_progress(self, completed: int, total: int, message: str) -> None:
+        """Convert step counts to a percentage for the UI."""
+        percent = round((completed / total) * 100) if total else 0
+        self.progress_changed.emit(percent, message)

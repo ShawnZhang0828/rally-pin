@@ -26,4 +26,3 @@ def parse_timestamp_to_milliseconds(value: str) -> int:
 
     hours, minutes, seconds, milliseconds = (int(group) for group in match.groups())
     return (((hours * 60) + minutes) * 60 + seconds) * 1000 + milliseconds
-
