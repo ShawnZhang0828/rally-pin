@@ -22,7 +22,7 @@ All notable RallyPin changes are recorded here.
 
 ### Fixed
 
-- Ubuntu CI now installs the EGL runtime required to import PyQt6 during headless UI tests.
+- Ubuntu CI now installs the EGL and PulseAudio runtimes required by headless PyQt6 UI tests.
 - The play-by-play export button now uses white text against its blue background.
 - Invalid or negative segment ranges can no longer enter the timeline.
 - Failed and cancelled exports clean up temporary output.
